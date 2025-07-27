@@ -1,34 +1,617 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Random Anime Quote</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 40px; }
-    .quote-box {
-      border: 1px solid #ddd;
-      padding: 30px;
-      max-width: 500px;
-      margin: 40px auto;
-      border-radius: 10px;
-      background: #fafafa;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-    .character { font-size: 1.2em; font-weight: bold; color: #222; }
-    .quote { font-size: 1.5em; color: #0082ff; margin: 12px 0; }
-    .anime { font-style: italic; color: #777; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title.data.Media.title.english || title.data.Media.title.romaji %> - Anime Info</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Noto+Sans+JP:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 75%, #533483 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: float-particle linear infinite;
+        }
+        
+        .particle:nth-child(1) { left: 10%; animation-duration: 15s; animation-delay: 0s; }
+        .particle:nth-child(2) { left: 20%; animation-duration: 18s; animation-delay: 2s; }
+        .particle:nth-child(3) { left: 30%; animation-duration: 12s; animation-delay: 4s; }
+        .particle:nth-child(4) { left: 40%; animation-duration: 20s; animation-delay: 1s; }
+        .particle:nth-child(5) { left: 60%; animation-duration: 16s; animation-delay: 3s; }
+        .particle:nth-child(6) { left: 70%; animation-duration: 14s; animation-delay: 5s; }
+        .particle:nth-child(7) { left: 80%; animation-duration: 17s; animation-delay: 2.5s; }
+        .particle:nth-child(8) { left: 90%; animation-duration: 13s; animation-delay: 4.5s; }
+        
+        @keyframes float-particle {
+            0% { 
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+                transform: translateY(90vh) scale(1);
+            }
+            90% {
+                opacity: 1;
+                transform: translateY(10vh) scale(1);
+            }
+            100% { 
+                transform: translateY(-10vh) scale(0);
+                opacity: 0;
+            }
+        }
+        
+        /* Main container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Anime card */
+        .anime-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease;
+            animation: slideInUp 1s ease-out;
+        }
+        
+        .anime-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 
+                0 35px 70px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+        
+        @keyframes slideInUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Header section */
+        .anime-header {
+            position: relative;
+            height: 300px;
+            background: linear-gradient(135deg, #ff6b9d, #667eea);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .anime-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+        
+        /* Enhanced cover image with reflection */
+        .cover-image {
+            width: 180px;
+            height: 240px;
+            border-radius: 15px;
+            object-fit: cover;
+            box-shadow: 
+                0 15px 30px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.2);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 2;
+            position: relative;
+            opacity: 0;
+            animation: fadeInScale 1.2s ease-out 0.5s forwards;
+        }
+        
+        .cover-image:hover {
+            transform: scale(1.08) rotateY(8deg) rotateX(5deg);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(255, 255, 255, 0.4),
+                0 0 30px rgba(255, 107, 157, 0.3);
+        }
+        
+        .cover-image::after {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.1), transparent);
+            transform: scaleY(-1);
+            opacity: 0.5;
+            border-radius: 0 0 15px 15px;
+        }
+        
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.8) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        /* Content section */
+        .anime-content {
+            padding: 40px;
+        }
+        
+        .anime-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .title-english {
+            font-size: 2.5em;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff6b9d, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            animation: glow 3s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+        }
+        
+        .title-romaji {
+            font-size: 1.5em;
+            color: #e2e8f0;
+            font-weight: 400;
+            margin-bottom: 8px;
+        }
+        
+        .title-native {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-size: 1.3em;
+            color: #cbd5e0;
+            font-weight: 700;
+        }
+        
+        @keyframes glow {
+            0%, 100% { 
+                filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.3));
+            }
+            50% { 
+                filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.6));
+            }
+        }
+        
+        /* Info grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        /* Enhanced info sections with animated borders */
+        .info-section {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .info-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff6b9d, transparent);
+            animation: borderSlide 3s ease-in-out infinite;
+        }
+        
+        @keyframes borderSlide {
+            0%, 100% { left: -100%; }
+            50% { left: 100%; }
+        }
+        
+        .info-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .info-section::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(102, 126, 234, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .info-section:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(255, 107, 157, 0.2);
+        }
+        
+        .info-section:hover::after {
+            opacity: 1;
+        }
+        
+        .info-section > * {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .section-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #ff6b9d;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title::before {
+            content: '◆';
+            font-size: 1.2em;
+            color: #667eea;
+        }
+        
+        .section-content {
+            color: #e2e8f0;
+            line-height: 1.6;
+            font-size: 1.1em;
+        }
+        
+        .episodes-badge {
+            display: inline-flex;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1.1em;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .episodes-badge::before {
+            content: '📺';
+            margin-right: 8px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .episodes-badge::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transition: all 0.5s ease;
+            transform: translate(-50%, -50%);
+        }
+        
+        .episodes-badge:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+        }
+        
+        .episodes-badge:hover::after {
+            width: 100px;
+            height: 100px;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        /* Enhanced description styling with typing effect */
+        .description {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid #ff6b9d;
+            padding: 25px;
+            border-radius: 0 15px 15px 0;
+            margin: 20px 0;
+            font-style: italic;
+            position: relative;
+            font-size: 1.05em;
+            line-height: 1.7;
+            transition: all 0.3s ease;
+        }
+        
+        .description::before {
+            content: '"';
+            position: absolute;
+            top: -15px;
+            left: 15px;
+            font-size: 4em;
+            color: #ff6b9d;
+            opacity: 0.2;
+            font-family: serif;
+        }
+        
+        .description::after {
+            content: '"';
+            position: absolute;
+            bottom: -20px;
+            right: 15px;
+            font-size: 4em;
+            color: #ff6b9d;
+            opacity: 0.2;
+            font-family: serif;
+        }
+        
+        .description:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(10px);
+            box-shadow: -5px 0 15px rgba(255, 107, 157, 0.2);
+        }
+        
+        /* Floating decorative elements */
+        .deco-star {
+            position: absolute;
+            color: #ff6b9d;
+            font-size: 1.5em;
+            animation: twinkle 2s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        .deco-star:nth-child(1) { top: 20%; right: 10%; animation-delay: 0s; }
+        .deco-star:nth-child(2) { top: 60%; left: 5%; animation-delay: 1s; }
+        .deco-star:nth-child(3) { bottom: 20%; right: 15%; animation-delay: 2s; }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            .anime-header {
+                height: 250px;
+            }
+            
+            .cover-image {
+                width: 140px;
+                height: 190px;
+            }
+            
+            .anime-content {
+                padding: 30px 20px;
+            }
+            
+            .title-english {
+                font-size: 2em;
+            }
+            
+            .title-romaji {
+                font-size: 1.3em;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+        
+        /* Loading animation for images */
+        .cover-image {
+            opacity: 0;
+            animation: fadeInScale 1.2s ease-out 0.5s forwards;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        
+        /* Additional floating elements */
+        .floating-orb {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, rgba(255, 107, 157, 0.6), transparent);
+            border-radius: 50%;
+            animation: floatOrb 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        .floating-orb:nth-child(1) { top: 15%; left: 5%; animation-delay: 0s; }
+        .floating-orb:nth-child(2) { top: 70%; right: 10%; animation-delay: 2s; }
+        .floating-orb:nth-child(3) { bottom: 25%; left: 15%; animation-delay: 4s; }
+        
+        @keyframes floatOrb {
+            0%, 100% { transform: translateY(0px) scale(1); opacity: 0.6; }
+            50% { transform: translateY(-30px) scale(1.2); opacity: 1; }
+        }
+        
+        /* Enhanced section titles with icons */
+        .section-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #ff6b9d;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+        
+        .section-title::before {
+            content: '◆';
+            font-size: 1.2em;
+            color: #667eea;
+            animation: rotate 3s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-  <div class="quote-box">
-    <div class="character">
-      <%= result.data.character.name %>
+    <!-- Floating particles -->
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
     </div>
-    <div class="quote">
-      "<%= result.data.content %>"
+    
+    <div class="container">
+        <!-- Decorative stars -->
+        <div class="deco-star">✦</div>
+        <div class="deco-star">✧</div>
+        <div class="deco-star">✦</div>
+        
+        <!-- Floating orbs -->
+        <div class="floating-orb"></div>
+        <div class="floating-orb"></div>
+        <div class="floating-orb"></div>
+        
+        <div class="anime-card">
+            <!-- Header with cover image -->
+            <div class="anime-header">
+                <img src="<%= title.data.Media.coverImage.large %>" alt="<%= title.data.Media.title.english || title.data.Media.title.romaji %>" class="cover-image">
+            </div>
+            
+            <!-- Main content -->
+            <div class="anime-content">
+                <!-- Title section -->
+                <div class="anime-title">
+                    <% if (title.data.Media.title.english) { %>
+                        <h1 class="title-english"><%= title.data.Media.title.english %></h1>
+                    <% } %>
+                    <% if (title.data.Media.title.romaji && title.data.Media.title.romaji !== title.data.Media.title.english) { %>
+                        <h2 class="title-romaji"><%= title.data.Media.title.romaji %></h2>
+                    <% } %>
+                    <% if (title.data.Media.title.native) { %>
+                        <h3 class="title-native"><%= title.data.Media.title.native %></h3>
+                    <% } %>
+                </div>
+                
+                <!-- Info grid -->
+                <div class="info-grid">
+                    <!-- Episodes info -->
+                    <div class="info-section">
+                        <div class="section-title">Episodes</div>
+                        <div class="section-content">
+                            <span class="episodes-badge">
+                                <%= title.data.Media.episodes ? title.data.Media.episodes + ' Episodes' : 'Unknown' %>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- ID info -->
+                    <div class="info-section">
+                        <div class="section-title">AniList ID</div>
+                        <div class="section-content">
+                            <span style="font-family: 'Courier New', monospace; background: rgba(102, 126, 234, 0.2); padding: 5px 10px; border-radius: 5px; color: #667eea; font-weight: bold;">#<%= title.data.Media.id %></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Status info -->
+                    <div class="info-section">
+                        <div class="section-title">Status</div>
+                        <div class="section-content">
+                            <span style="background: linear-gradient(135deg, #48bb78, #38a169); color: white; padding: 6px 12px; border-radius: 15px; font-size: 0.9em; font-weight: 600;">✓ Completed</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Genre placeholder -->
+                    <div class="info-section">
+                        <div class="section-title">Type</div>
+                        <div class="section-content">
+                            <span style="background: linear-gradient(135deg, #ed8936, #dd6b20); color: white; padding: 6px 12px; border-radius: 15px; font-size: 0.9em; font-weight: 600;">📺 TV Series</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Description -->
+                <% if (title.data.Media.description) { %>
+                    <div class="info-section" style="margin-top: 30px;">
+                        <div class="section-title">Synopsis</div>
+                        <div class="description">
+                            <%- title.data.Media.description.replace(/<[^>]*>/g, '') %>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
     </div>
-    <div class="anime">
-      &mdash; <%= result.data.anime.name %>
-    </div>
-  </div>
 </body>
 </html>

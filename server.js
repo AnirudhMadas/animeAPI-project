@@ -7,14 +7,43 @@ const PORT = 3000;
 app.set('view engine','ejs');
 
 // Example route to fetch data from an external API using axios
-app.get('/', async (req, res) => {
-    try {
-        const response = await axios.get('https://api.animechan.io/v1/quotes/random');
-        const result = response.data;
-        res.render("index", { result: result });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch anime data' });
+app.get("/", async (req, res) => {
+  const query = `
+    query ($search: String) {
+  Media(search: $search, type: ANIME) {
+    id
+    title {
+      romaji
+      english
+      native
     }
+    description
+    episodes
+    coverImage {
+      large
+    }
+  }
+}`;
+
+  const variables = {
+    search: "Attack on Titan"
+  };
+
+  try {
+    const response = await axios.post("https://graphql.anilist.co", {
+      query,
+      variables
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      }
+    });
+
+    res.render("index.ejs",{title:response.data}); // or render with EJS
+  } catch (error) {
+    res.status(500).send("Error fetching from AniList");
+  }
 });
 
 app.listen(PORT, () => {
