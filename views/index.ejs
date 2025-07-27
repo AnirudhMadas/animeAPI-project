@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Random Anime Quote</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    .quote-box {
+      border: 1px solid #ddd;
+      padding: 30px;
+      max-width: 500px;
+      margin: 40px auto;
+      border-radius: 10px;
+      background: #fafafa;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .character { font-size: 1.2em; font-weight: bold; color: #222; }
+    .quote { font-size: 1.5em; color: #0082ff; margin: 12px 0; }
+    .anime { font-style: italic; color: #777; }
+  </style>
+</head>
+<body>
+  <div class="quote-box">
+    <div class="character">
+      <%= result.data.character.name %>
+    </div>
+    <div class="quote">
+      "<%= result.data.content %>"
+    </div>
+    <div class="anime">
+      &mdash; <%= result.data.anime.name %>
+    </div>
+  </div>
+</body>
+</html>
