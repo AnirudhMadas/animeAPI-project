@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title.data.Media.title.english || title.data.Media.title.romaji %> - Anime Info</title>
+    <title>Anime Info - Interactive Search</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Noto+Sans+JP:wght@400;700&display=swap');
         
@@ -75,6 +75,236 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 40px 20px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Enhanced Search Section */
+        .search-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            animation: slideInDown 1s ease-out;
+        }
+        
+        .search-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff6b9d, #667eea, transparent);
+            animation: searchBorderGlow 4s ease-in-out infinite;
+        }
+        
+        @keyframes searchBorderGlow {
+            0%, 100% { left: -100%; }
+            50% { left: 100%; }
+        }
+        
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .search-title {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff6b9d, #667eea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+        }
+        
+        .search-title::before {
+            content: '🔍';
+            position: absolute;
+            left: -50px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2em;
+            animation: searchIconBounce 2s ease-in-out infinite;
+        }
+        
+        @keyframes searchIconBounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(-50%) scale(1); }
+            40% { transform: translateY(-60%) scale(1.1); }
+            60% { transform: translateY(-40%) scale(1.1); }
+        }
+        
+        .search-container {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            position: relative;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 18px 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            color: #fff;
+            font-size: 1.1em;
+            font-family: 'Poppins', sans-serif;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            outline: none;
+        }
+        
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+        }
+        
+        .search-input:focus {
+            border-color: #ff6b9d;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 
+                0 0 30px rgba(255, 107, 157, 0.3),
+                inset 0 0 20px rgba(255, 255, 255, 0.1);
+            transform: scale(1.02);
+        }
+        
+        .search-input:hover {
+            border-color: rgba(102, 126, 234, 0.6);
+            background: rgba(255, 255, 255, 0.12);
+        }
+        
+        .search-button {
+            padding: 18px 35px;
+            background: linear-gradient(135deg, #ff6b9d, #667eea);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 25px rgba(255, 107, 157, 0.4);
+            min-width: 120px;
+        }
+        
+        .search-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .search-button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(255, 107, 157, 0.6);
+            background: linear-gradient(135deg, #ff8fb3, #7b94f0);
+        }
+        
+        .search-button:hover::before {
+            left: 100%;
+        }
+        
+        .search-button:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+        
+        .search-button::after {
+            content: '✨';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .search-button:hover::after {
+            opacity: 1;
+            transform: translateY(-50%) rotate(180deg);
+        }
+        
+        /* Quick search suggestions */
+        .search-suggestions {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .suggestions-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+        
+        .suggestion-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .suggestion-tag {
+            background: rgba(102, 126, 234, 0.2);
+            color: #a5b8f3;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            cursor: pointer;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .suggestion-tag::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 107, 157, 0.2), rgba(102, 126, 234, 0.2));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .suggestion-tag:hover {
+            background: rgba(255, 107, 157, 0.2);
+            color: #ffb3d1;
+            border-color: rgba(255, 107, 157, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .suggestion-tag:hover::before {
+            opacity: 1;
+        }
+        
+        .suggestion-tag span {
             position: relative;
             z-index: 2;
         }
@@ -161,19 +391,6 @@
                 0 25px 50px rgba(0, 0, 0, 0.6),
                 0 0 0 1px rgba(255, 255, 255, 0.4),
                 0 0 30px rgba(255, 107, 157, 0.3);
-        }
-        
-        .cover-image::after {
-            content: '';
-            position: absolute;
-            bottom: -50px;
-            left: 0;
-            right: 0;
-            height: 50px;
-            background: linear-gradient(to bottom, rgba(255,255,255,0.1), transparent);
-            transform: scaleY(-1);
-            opacity: 0.5;
-            border-radius: 0 0 15px 15px;
         }
         
         @keyframes fadeInScale {
@@ -313,6 +530,12 @@
             content: '◆';
             font-size: 1.2em;
             color: #667eea;
+            animation: rotate 3s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
         
         .section-content {
@@ -343,27 +566,9 @@
             animation: pulse 2s ease-in-out infinite;
         }
         
-        .episodes-badge::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            transition: all 0.5s ease;
-            transform: translate(-50%, -50%);
-        }
-        
         .episodes-badge:hover {
             transform: translateY(-3px) scale(1.05);
             box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
-        }
-        
-        .episodes-badge:hover::after {
-            width: 100px;
-            height: 100px;
         }
         
         @keyframes pulse {
@@ -371,7 +576,7 @@
             50% { transform: scale(1.1); }
         }
         
-        /* Enhanced description styling with typing effect */
+        /* Enhanced description styling */
         .description {
             background: rgba(255, 255, 255, 0.05);
             border-left: 4px solid #ff6b9d;
@@ -431,10 +636,55 @@
             50% { opacity: 1; transform: scale(1.2); }
         }
         
+        /* Floating orbs */
+        .floating-orb {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, rgba(255, 107, 157, 0.6), transparent);
+            border-radius: 50%;
+            animation: floatOrb 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        .floating-orb:nth-child(1) { top: 15%; left: 5%; animation-delay: 0s; }
+        .floating-orb:nth-child(2) { top: 70%; right: 10%; animation-delay: 2s; }
+        .floating-orb:nth-child(3) { bottom: 25%; left: 15%; animation-delay: 4s; }
+        
+        @keyframes floatOrb {
+            0%, 100% { transform: translateY(0px) scale(1); opacity: 0.6; }
+            50% { transform: translateY(-30px) scale(1.2); opacity: 1; }
+        }
+        
         /* Responsive design */
         @media (max-width: 768px) {
             .container {
                 padding: 20px 15px;
+            }
+            
+            .search-section {
+                padding: 20px;
+            }
+            
+            .search-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .search-input {
+                width: 100%;
+            }
+            
+            .search-button {
+                width: 100%;
+            }
+            
+            .search-title::before {
+                display: none;
+            }
+            
+            .suggestion-tags {
+                gap: 8px;
             }
             
             .anime-header {
@@ -463,60 +713,6 @@
                 gap: 20px;
             }
         }
-        
-        /* Loading animation for images */
-        .cover-image {
-            opacity: 0;
-            animation: fadeInScale 1.2s ease-out 0.5s forwards;
-        }
-        
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
-        
-        /* Additional floating elements */
-        .floating-orb {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background: radial-gradient(circle, rgba(255, 107, 157, 0.6), transparent);
-            border-radius: 50%;
-            animation: floatOrb 8s ease-in-out infinite;
-            pointer-events: none;
-        }
-        
-        .floating-orb:nth-child(1) { top: 15%; left: 5%; animation-delay: 0s; }
-        .floating-orb:nth-child(2) { top: 70%; right: 10%; animation-delay: 2s; }
-        .floating-orb:nth-child(3) { bottom: 25%; left: 15%; animation-delay: 4s; }
-        
-        @keyframes floatOrb {
-            0%, 100% { transform: translateY(0px) scale(1); opacity: 0.6; }
-            50% { transform: translateY(-30px) scale(1.2); opacity: 1; }
-        }
-        
-        /* Enhanced section titles with icons */
-        .section-title {
-            font-size: 1.3em;
-            font-weight: 700;
-            color: #ff6b9d;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            position: relative;
-        }
-        
-        .section-title::before {
-            content: '◆';
-            font-size: 1.2em;
-            color: #667eea;
-            animation: rotate 3s linear infinite;
-        }
-        
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body>
@@ -543,6 +739,45 @@
         <div class="floating-orb"></div>
         <div class="floating-orb"></div>
         
+        <!-- Enhanced Search Section -->
+        <div class="search-section">
+            <h2 class="search-title">Discover Your Next Adventure</h2>
+            <div class="search-container">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="animeSearch" 
+                    placeholder="Search for anime titles, characters, or genres..."
+                    autocomplete="off"
+                >
+                <button class="search-button" id="searchBtn">
+                    Search
+                </button>
+            </div>
+            
+            <div class="search-suggestions">
+                <div class="suggestions-label">Popular searches:</div>
+                <div class="suggestion-tags">
+                    <div class="suggestion-tag" onclick="searchAnime('Attack on Titan')">
+                        <span>Attack on Titan</span>
+                    </div>
+                    <div class="suggestion-tag" onclick="searchAnime('Demon Slayer')">
+                        <span>Demon Slayer</span>
+                    </div>
+                    <div class="suggestion-tag" onclick="searchAnime('Your Name')">
+                        <span>Your Name</span>
+                    </div>
+                    <div class="suggestion-tag" onclick="searchAnime('Spirited Away')">
+                        <span>Spirited Away</span>
+                    </div>
+                    <div class="suggestion-tag" onclick="searchAnime('One Piece')">
+                        <span>One Piece</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sample Anime Card -->
         <div class="anime-card">
             <!-- Header with cover image -->
             <div class="anime-header">
@@ -553,15 +788,9 @@
             <div class="anime-content">
                 <!-- Title section -->
                 <div class="anime-title">
-                    <% if (title.data.Media.title.english) { %>
-                        <h1 class="title-english"><%= title.data.Media.title.english %></h1>
-                    <% } %>
-                    <% if (title.data.Media.title.romaji && title.data.Media.title.romaji !== title.data.Media.title.english) { %>
-                        <h2 class="title-romaji"><%= title.data.Media.title.romaji %></h2>
-                    <% } %>
-                    <% if (title.data.Media.title.native) { %>
-                        <h3 class="title-native"><%= title.data.Media.title.native %></h3>
-                    <% } %>
+                    <h1 class="title-english">Attack on Titan</h1>
+                    <h2 class="title-romaji">Shingeki no Kyojin</h2>
+                    <h3 class="title-native">進撃の巨人</h3>
                 </div>
                 
                 <!-- Info grid -->
@@ -571,7 +800,7 @@
                         <div class="section-title">Episodes</div>
                         <div class="section-content">
                             <span class="episodes-badge">
-                                <%= title.data.Media.episodes ? title.data.Media.episodes + ' Episodes' : 'Unknown' %>
+                                25 Episodes
                             </span>
                         </div>
                     </div>
@@ -580,7 +809,7 @@
                     <div class="info-section">
                         <div class="section-title">AniList ID</div>
                         <div class="section-content">
-                            <span style="font-family: 'Courier New', monospace; background: rgba(102, 126, 234, 0.2); padding: 5px 10px; border-radius: 5px; color: #667eea; font-weight: bold;">#<%= title.data.Media.id %></span>
+                            <span style="font-family: 'Courier New', monospace; background: rgba(102, 126, 234, 0.2); padding: 5px 10px; border-radius: 5px; color: #667eea; font-weight: bold;">#20958</span>
                         </div>
                     </div>
                     
@@ -592,7 +821,7 @@
                         </div>
                     </div>
                     
-                    <!-- Genre placeholder -->
+                    <!-- Type info -->
                     <div class="info-section">
                         <div class="section-title">Type</div>
                         <div class="section-content">
@@ -602,16 +831,122 @@
                 </div>
                 
                 <!-- Description -->
-                <% if (title.data.Media.description) { %>
-                    <div class="info-section" style="margin-top: 30px;">
-                        <div class="section-title">Synopsis</div>
-                        <div class="description">
-                            <%- title.data.Media.description.replace(/<[^>]*>/g, '') %>
-                        </div>
+                <div class="info-section" style="margin-top: 30px;">
+                    <div class="section-title">Synopsis</div>
+                    <div class="description">
+                        Humanity lives within three concentric walls built to protect them from the Titans, massive humanoid creatures that devour humans. When the outermost wall is breached by two mysterious Titans, humanity is forced to confront the truth about their world and fight for survival against these terrifying beings.
                     </div>
-                <% } %>
+                </div>
             </div>
         </div>
     </div>
+
+    <script>
+        // Search functionality
+        const searchInput = document.getElementById('animeSearch');
+        const searchBtn = document.getElementById('searchBtn');
+
+        // Add enter key support for search
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // Search button click handler
+        searchBtn.addEventListener('click', performSearch);
+
+        // Search function
+        function performSearch() {
+            const query = searchInput.value.trim();
+            if (query) {
+                // Add loading animation to button
+                searchBtn.innerHTML = 'Searching...';
+                searchBtn.style.background = 'linear-gradient(135deg, #a0a0a0, #808080)';
+                
+                // Simulate search delay
+                setTimeout(() => {
+                    console.log('Searching for:', query);
+                    // Here you would typically make an API call
+                    // For demo purposes, we'll just reset the button
+                    searchBtn.innerHTML = 'Search';
+                    searchBtn.style.background = 'linear-gradient(135deg, #ff6b9d, #667eea)';
+                    
+                    // You could update the anime card with new data here
+                    updateAnimeCard(query);
+                }, 1500);
+            }
+        }
+
+        // Function to handle suggestion clicks
+        function searchAnime(title) {
+            searchInput.value = title;
+            searchInput.focus();
+            performSearch();
+        }
+
+        // Function to update anime card (placeholder for actual API integration)
+        function updateAnimeCard(query) {
+            // This would typically fetch data from AniList API and update the card
+            console.log('Would update card with data for:', query);
+            
+            // Add a subtle animation to show the card updated
+            const animeCard = document.querySelector('.anime-card');
+            animeCard.style.transform = 'scale(0.98)';
+            animeCard.style.opacity = '0.8';
+            
+            setTimeout(() => {
+                animeCard.style.transform = 'scale(1)';
+                animeCard.style.opacity = '1';
+            }, 200);
+        }
+
+        // Add floating animation to search suggestions
+        const suggestionTags = document.querySelectorAll('.suggestion-tag');
+        suggestionTags.forEach((tag, index) => {
+            tag.style.animationDelay = `${index * 0.2}s`;
+            tag.style.animation = `fadeIn 0.6s ease-out forwards`;
+        });
+
+        // Add subtle parallax effect to particles based on mouse movement
+        document.addEventListener('mousemove', (e) => {
+            const particles = document.querySelectorAll('.particle');
+            const mouseX = e.clientX / window.innerWidth;
+            const mouseY = e.clientY / window.innerHeight;
+            
+            particles.forEach((particle, index) => {
+                const speed = (index + 1) * 0.02;
+                const x = (mouseX - 0.5) * speed * 50;
+                const y = (mouseY - 0.5) * speed * 50;
+                
+                particle.style.transform += ` translate(${x}px, ${y}px)`;
+            });
+        });
+
+        // Add focus effects for accessibility
+        searchInput.addEventListener('focus', function() {
+            this.parentElement.style.transform = 'scale(1.01)';
+        });
+
+        searchInput.addEventListener('blur', function() {
+            this.parentElement.style.transform = 'scale(1)';
+        });
+
+        // Add typing effect for placeholder (optional enhancement)
+        const placeholders = [
+            "Search for anime titles, characters, or genres...",
+            "Try 'Attack on Titan', 'Naruto', 'Studio Ghibli'...",
+            "Discover your next favorite anime...",
+            "Search by genre: action, romance, comedy..."
+        ];
+        
+        let placeholderIndex = 0;
+        setInterval(() => {
+            if (!searchInput.value && document.activeElement !== searchInput) {
+                placeholderIndex = (placeholderIndex + 1) % placeholders.length;
+                searchInput.placeholder = placeholders[placeholderIndex];
+            }
+        }, 4000);
+    </script>
 </body>
 </html>

@@ -26,7 +26,7 @@ app.get("/", async (req, res) => {
 }`;
 
   const variables = {
-    search: "Attack on Titan"
+    search: "Onepiece"
   };
 
   try {
